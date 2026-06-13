@@ -13,12 +13,14 @@ else
   SUDO="sudo"
 fi
 
+APT_GET=("$SUDO" apt-get -o Acquire::ForceIPv4=true)
+
 echo "Instalando dependencias..."
-$SUDO apt-get update
-$SUDO apt-get install -y gnupg software-properties-common wget lsb-release
+"${APT_GET[@]}" update
+"${APT_GET[@]}" install -y gnupg software-properties-common wget lsb-release
 
 echo "Adicionando a chave GPG oficial da HashiCorp..."
-wget -O - https://apt.releases.hashicorp.com/gpg \
+wget -4 --timeout=30 --tries=3 -O - https://apt.releases.hashicorp.com/gpg \
   | $SUDO gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
 
 ARCH="$(dpkg --print-architecture)"
@@ -33,8 +35,8 @@ echo "deb [arch=${ARCH} signed-by=/usr/share/keyrings/hashicorp-archive-keyring.
   | $SUDO tee /etc/apt/sources.list.d/hashicorp.list >/dev/null
 
 echo "Instalando Terraform..."
-$SUDO apt-get update
-$SUDO apt-get install -y terraform
+"${APT_GET[@]}" update
+"${APT_GET[@]}" install -y terraform
 
 echo
 echo "Terraform instalado com sucesso:"
